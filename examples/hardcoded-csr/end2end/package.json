@@ -1,0 +1,12 @@
+{
+  "name": "end2end",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "author": "mondeja",
+  "license": "MIT",
+  "devDependencies": {
+    "@playwright/test": "^1.28.0",
+    "@types/node": "^18.15.5"
+  }
+}

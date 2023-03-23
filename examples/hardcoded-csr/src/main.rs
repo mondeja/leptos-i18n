@@ -25,27 +25,29 @@ fn I18nPage(cx: Scope) -> impl IntoView {
         }}</h1>
 
         // Show the language translated
-        <p>{move || {
-            match language.get() {
-                Language::English => "Language: ",
-                Language::Spanish => "Idioma: ",
-            }
-        }}
-        <strong>{move || language.get().to_string()}</strong></p>
-        
+        <p>
+            {move || {
+                match language.get() {
+                    Language::English => "Language: ",
+                    Language::Spanish => "Idioma: ",
+                }
+            }}
+            {move || language.get().to_string()}
+        </p>
+
         // Handle language selection
         <select on:change=move |ev| {
             let val = event_target_value(&ev);
             set_language.update(|lang| { *lang = Language::from_str(&val).unwrap(); });
         }>
             {
-                Language::iter().map(
+                move || {Language::iter().map(
                     |lang| view! { cx,
                         <option selected={lang == language.get()}>
                             {lang.to_string()}
                         </option>
                     }
-                ).collect::<Vec<_>>()
+                ).collect::<Vec<_>>()}
             }
         </select>
     }
