@@ -3,6 +3,8 @@ use std::str::FromStr;
 use leptos::*;
 use strum::{Display, EnumIter, EnumString, IntoEnumIterator};
 
+use shared::get_value_of_cookie;
+
 #[derive(Clone, EnumIter, EnumString, Display, Default, PartialEq)]
 enum Language {
     #[default]
@@ -12,16 +14,10 @@ enum Language {
 }
 
 fn initial_language_from_cookie() -> Language {
-    use wasm_bindgen::JsCast;
-
-    let doc = document().unchecked_into::<web_sys::HtmlDocument>();
-    let cookie = doc.cookie().unwrap_or_default();
-    cookie
-        .replace("%C3%B1", "ñ")
-        .split_once('=')
-        .map(|c| c.1)
-        .map(|lang| Language::from_str(lang).unwrap_or_default())
-        .unwrap_or_default()
+    match get_value_of_cookie("language") {
+        Some(lang) => Language::from_str(&lang.replace("%C3%B1", "ñ")).unwrap_or_default(),
+        None => Language::default(),
+    }
 }
 
 fn set_language_cookie(lang: Language) {
@@ -29,7 +25,7 @@ fn set_language_cookie(lang: Language) {
 
     let doc = document().unchecked_into::<web_sys::HtmlDocument>();
 
-    // Very dirty workaround for the ñ character (see the README):
+    // Very dirty workaround for the 'ñ' character (see the README):
     let encoded_lang = lang.to_string().replace('ñ', "%C3%B1");
 
     // Note that we set the cookie to expire in 10 seconds

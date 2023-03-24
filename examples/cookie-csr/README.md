@@ -1,6 +1,6 @@
 # cookie-csr
 
-This example shows how to save the preferred language in a CSRed Leptos app using a browser cookie.
+This example shows how to handle persistence of preferred language in a CSRed Leptos app using a browser cookie.
 
 ## Details
 

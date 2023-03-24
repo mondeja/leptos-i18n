@@ -1,5 +1,7 @@
 [workspace]
 members = [
+    "examples/shared",
     "examples/hardcoded-csr",
     "examples/cookie-csr",
+    "examples/navigator-languages-cookie-csr",
 ]
