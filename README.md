@@ -9,3 +9,4 @@ The recommended order to read the examples is:
 - [hardcoded-csr](examples/hardcoded-csr)
 - [cookie-csr](examples/cookie-csr)
 - [navigator-languages-cookie-csr](examples/navigator-languages-cookie-csr)
+- [navigator-languages-localstorage-csr](examples/navigator-languages-localstorage-csr)

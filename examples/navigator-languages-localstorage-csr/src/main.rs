@@ -1,7 +1,5 @@
 use leptos::*;
 
-use shared::{get_cookie_value, set_cookie_value};
-
 #[derive(Clone, PartialEq)]
 struct Language {
     code: &'static str,
@@ -51,13 +49,8 @@ fn initial_language_from_navigator_languages() -> Option<Language> {
     None
 }
 
-fn initial_language_from_cookie_or_navigator_languages() -> Language {
-    let initial_language = match get_cookie_value("language") {
-        Some(language_cookie) => Language::from_str(&language_cookie),
-        None => None,
-    };
-
-    match initial_language {
+fn initial_language_from_localstorage_or_navigator_languages() -> Language {
+    match initial_language_from_localstorage() {
         Some(lang) => lang,
         None => match initial_language_from_navigator_languages() {
             Some(lang) => lang,
@@ -66,14 +59,28 @@ fn initial_language_from_cookie_or_navigator_languages() -> Language {
     }
 }
 
-fn set_language_cookie(lang: Language) {
-    set_cookie_value("language", lang.code, "Max-Age=10;Path=/;Secure");
+fn initial_language_from_localstorage() -> Option<Language> {
+    let window = web_sys::window().unwrap();
+    let local_storage = window.local_storage().unwrap().unwrap();
+
+    match local_storage.get_item("language") {
+        Ok(Some(language)) => Language::from_str(&language),
+        _ => None,
+    }
+}
+
+fn set_language_localstorage(lang: Language) {
+    let window = web_sys::window().unwrap();
+    // Note that this will panic if local storage is not available
+    let local_storage = window.local_storage().unwrap().unwrap();
+
+    local_storage.set_item("language", lang.code).unwrap();
 }
 
 #[component]
 fn I18nPage(cx: Scope) -> impl IntoView {
-    // Get initial language from cookie using `navigator.languages` as fallback
-    let initial_language = initial_language_from_cookie_or_navigator_languages();
+    // Get initial language from local storage using `navigator.languages` as fallback
+    let initial_language = initial_language_from_localstorage_or_navigator_languages();
 
     let (language, set_language) = create_signal::<Language>(cx, initial_language);
 
@@ -104,7 +111,7 @@ fn I18nPage(cx: Scope) -> impl IntoView {
             let val = event_target_value(&ev);
             set_language.update(|lang| {
                 *lang = Language::from_str(&val).unwrap();
-                set_language_cookie(lang.clone());
+                set_language_localstorage(lang.clone());
             });
         }>
             {move || {

@@ -4,4 +4,5 @@ members = [
     "examples/hardcoded-csr",
     "examples/cookie-csr",
     "examples/navigator-languages-cookie-csr",
+    "examples/navigator-languages-localstorage-csr",
 ]
