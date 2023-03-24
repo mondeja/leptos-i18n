@@ -1,6 +1,6 @@
 use leptos::document;
 
-pub fn get_value_of_cookie(cookie_name: &str) -> Option<String> {
+pub fn get_cookie_value(cookie_name: &str) -> Option<String> {
     use wasm_bindgen::JsCast;
 
     let doc = document().unchecked_into::<web_sys::HtmlDocument>();
@@ -17,4 +17,15 @@ pub fn get_value_of_cookie(cookie_name: &str) -> Option<String> {
         }
     }
     None
+}
+
+pub fn set_cookie_value(cookie_name: &str, value: &str, attributes: &str) {
+    use wasm_bindgen::JsCast;
+
+    let doc = document().unchecked_into::<web_sys::HtmlDocument>();
+
+    // Note that we set the cookie to expire in 10 seconds
+    // Also that Secure works at localhost even when without https: scheme
+    let cookie = format!("{}={};{}", cookie_name, value, attributes);
+    doc.set_cookie(&cookie).unwrap();
 }

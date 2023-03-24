@@ -1,6 +1,6 @@
 use leptos::*;
 
-use shared::get_value_of_cookie;
+use shared::{get_cookie_value, set_cookie_value};
 
 #[derive(Clone, PartialEq)]
 struct Language {
@@ -52,7 +52,7 @@ fn initial_language_from_navigator_languages() -> Option<Language> {
 }
 
 fn initial_language_from_cookie_or_navigator_languages() -> Language {
-    let initial_language = match get_value_of_cookie("language") {
+    let initial_language = match get_cookie_value("language") {
         Some(language_cookie) => Language::from_str(&language_cookie),
         None => None,
     };
@@ -67,14 +67,7 @@ fn initial_language_from_cookie_or_navigator_languages() -> Language {
 }
 
 fn set_language_cookie(lang: Language) {
-    use wasm_bindgen::JsCast;
-
-    let doc = document().unchecked_into::<web_sys::HtmlDocument>();
-
-    // Note that we set the cookie to expire in 10 seconds
-    // Also that Secure works at localhost even when without https: scheme
-    let cookie = format!("language={};Max-Age=10;Path=/;Secure", lang.code);
-    doc.set_cookie(&cookie).unwrap();
+    set_cookie_value("language", lang.code, "Max-Age=10;Path=/;Secure");
 }
 
 #[component]
@@ -109,9 +102,10 @@ fn I18nPage(cx: Scope) -> impl IntoView {
         // Handle language selection
         <select on:change=move |ev| {
             let val = event_target_value(&ev);
-            let lang = Language::from_str(&val).unwrap_or_default();
-            set_language(lang.clone());
-            set_language_cookie(lang);
+            set_language.update(|lang| {
+                *lang = Language::from_str(&val).unwrap();
+                set_language_cookie(lang.clone());
+            });
         }>
             {move || {
                 LANGUAGES.iter().map(|l| {

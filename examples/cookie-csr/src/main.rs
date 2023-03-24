@@ -3,7 +3,7 @@ use std::str::FromStr;
 use leptos::*;
 use strum::{Display, EnumIter, EnumString, IntoEnumIterator};
 
-use shared::get_value_of_cookie;
+use shared::{get_cookie_value, set_cookie_value};
 
 #[derive(Clone, EnumIter, EnumString, Display, Default, PartialEq)]
 enum Language {
@@ -14,24 +14,19 @@ enum Language {
 }
 
 fn initial_language_from_cookie() -> Language {
-    match get_value_of_cookie("language") {
+    match get_cookie_value("language") {
         Some(lang) => Language::from_str(&lang.replace("%C3%B1", "ñ")).unwrap_or_default(),
         None => Language::default(),
     }
 }
 
 fn set_language_cookie(lang: Language) {
-    use wasm_bindgen::JsCast;
-
-    let doc = document().unchecked_into::<web_sys::HtmlDocument>();
-
     // Very dirty workaround for the 'ñ' character (see the README):
     let encoded_lang = lang.to_string().replace('ñ', "%C3%B1");
 
     // Note that we set the cookie to expire in 10 seconds
     // Also that Secure works at localhost even when without https: scheme
-    let cookie = format!("language={};Max-Age=10;Path=/;Secure", encoded_lang);
-    doc.set_cookie(&cookie).unwrap();
+    set_cookie_value("language", &encoded_lang, "Max-Age=10;Path=/;Secure");
 }
 
 #[component]
